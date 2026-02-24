@@ -17,15 +17,46 @@ def render():
     st.title(f"{ICON} {TITLE}")
 
     st.markdown("""
-    Fourier's theorem tells us that **any** periodic function can be expressed as
-    a sum of sines and cosines. This is the backbone of signal processing, music
-    synthesis, and much of modern physics.
+    In 1807, Joseph Fourier made a revolutionary claim: **any** periodic function
+    — no matter how complicated — can be represented as a (possibly infinite) sum
+    of simple sinusoids. This idea, now known as **Fourier's theorem**, underpins
+    an enormous range of science and engineering, from audio compression (MP3) to
+    quantum mechanics.
+
+    #### The Fourier Series
+
+    A periodic function $f(t)$ with period $T$ can be written as:
     """)
 
     st.latex(
         r"f(t) = \frac{a_0}{2} + \sum_{n=1}^{\infty}"
         r"\bigl[a_n \cos(n\omega t) + b_n \sin(n\omega t)\bigr]"
     )
+
+    st.markdown("""
+    where $\\omega = 2\\pi / T$ is the fundamental angular frequency and the
+    coefficients $a_n$, $b_n$ determine how much of each harmonic is present.
+
+    #### How Each Wave Is Built
+
+    | Target Wave | Non-zero Terms | Series |
+    |-------------|---------------|--------|
+    | **Square wave** | Odd harmonics only ($n = 1, 3, 5, \\ldots$) | $\\frac{4}{\\pi} \\sum \\frac{\\sin(n t)}{n}$ |
+    | **Sawtooth wave** | All harmonics | $\\frac{2}{\\pi} \\sum \\frac{(-1)^{n+1} \\sin(n t)}{n}$ |
+    | **Triangle wave** | Odd harmonics only | $\\frac{8}{\\pi^2} \\sum \\frac{(-1)^{(n-1)/2} \\sin(n t)}{n^2}$ |
+
+    Notice that the triangle wave coefficients fall off as $1/n^2$ (much faster
+    than the square wave's $1/n$), which is why it converges more smoothly.
+
+    #### The Gibbs Phenomenon
+
+    No matter how many harmonics you add, a **sharp discontinuity** (like the
+    jump in a square wave) will always have an overshoot of about **9%** near
+    the edge. This is called the *Gibbs phenomenon* and is a fundamental
+    limitation of Fourier series for discontinuous functions.
+    """)
+
+    st.markdown("---")
 
     col1, col2 = st.columns([1, 2])
 
@@ -66,3 +97,41 @@ def render():
             showlegend=False,
         )
         st.plotly_chart(fig, width='stretch')
+
+    # ── Post-plot explanation ────────────────────────────────
+    st.markdown("---")
+    st.subheader("Things to Try")
+    st.markdown("""
+    1. **Square wave with 1 harmonic** — you see a single sine wave. Add more
+       harmonics and watch the waveform sharpen into a square shape.
+    2. **Square wave with 30 harmonics** — zoom in on the discontinuity to see
+       the **Gibbs overshoot** (~9% ripple that never goes away).
+    3. **Triangle wave** — notice how quickly it converges even with just 3-5
+       harmonics, because its coefficients decay as $1/n^2$.
+    4. **Sawtooth wave** — uses *all* harmonics (both even and odd), so it
+       converges differently from the square and triangle waves.
+    5. **Compare all three** at the same number of harmonics to appreciate how
+       smoothness of the target function affects convergence speed.
+    """)
+
+    st.subheader("Where Fourier Analysis Appears")
+    st.markdown("""
+    - **Audio & music**: Every musical instrument produces a unique mix of
+      harmonics (timbre). The equalizer on your stereo adjusts individual
+      Fourier components.
+    - **Image compression** (JPEG): Images are decomposed into 2-D cosine
+      components; discarding high-frequency ones compresses the file.
+    - **Signal processing**: Filtering noise, designing antennas, and
+      analysing seismic data all rely on Fourier transforms.
+    - **Quantum mechanics**: The wave function in momentum space is the Fourier
+      transform of the wave function in position space.
+    - **Heat conduction**: Fourier originally developed his series to solve
+      the heat equation — each harmonic decays at a rate proportional to $n^2$.
+    """)
+
+    st.info("""
+    **From series to transform** — The Fourier *series* works for periodic
+    functions. For non-periodic signals, we generalize to the **Fourier
+    transform**, which decomposes a function into a *continuous* spectrum
+    of frequencies rather than discrete harmonics.
+    """)

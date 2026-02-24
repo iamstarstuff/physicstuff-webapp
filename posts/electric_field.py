@@ -18,11 +18,47 @@ def render():
     st.title(f"{ICON} {TITLE}")
 
     st.markdown("""
-    The electric field $\\vec{E}$ at a point describes the force per unit charge
-    that a positive test charge would feel. For a point charge $q$:
+    The **electric field** $\\vec{E}$ is a vector field that permeates all of space
+    around electric charges. It represents the force per unit charge that a small
+    positive *test charge* would experience at every point.
+
+    #### Coulomb's Law and the Electric Field
+
+    For a single point charge $q$ located at the origin, the field at position
+    $\\vec{r}$ is:
     """)
 
     st.latex(r"\vec{E} = \frac{1}{4\pi\epsilon_0}\,\frac{q}{r^2}\,\hat{r}")
+
+    st.markdown("""
+    | Symbol | Meaning |
+    |--------|---------|
+    | $\\epsilon_0$ | Permittivity of free space ($8.854 \\times 10^{-12}$ F/m) |
+    | $q$ | Source charge (positive or negative) |
+    | $r$ | Distance from the charge to the field point |
+    | $\\hat{r}$ | Unit vector pointing from the charge to the field point |
+
+    #### Superposition Principle
+
+    If multiple charges are present, the total field is the **vector sum** of the
+    individual fields:
+
+    $$\\vec{E}_{\\text{total}} = \\sum_i \\vec{E}_i$$
+
+    This is why adding a second charge doesn't replace the first field — the
+    arrows you see in the plot are the combined contribution from *all* charges.
+
+    #### Reading a Field-Line Diagram
+
+    - **Direction** of each arrow shows the direction of the force on a positive
+      test charge.
+    - **Density** of arrows indicates field strength — closely packed arrows
+      mean a stronger field.
+    - Field lines **originate** at positive charges and **terminate** at
+      negative charges (or at infinity).
+    """)
+
+    st.markdown("---")
 
     col1, col2 = st.columns([1, 2])
 
@@ -37,7 +73,7 @@ def render():
 
     with col2:
         # Grid
-        pts = np.linspace(-5, 5, 100)
+        pts = np.linspace(-5, 5, 25)
         X, Y = np.meshgrid(pts, pts)
         Ex = np.zeros_like(X)
         Ey = np.zeros_like(Y)
@@ -92,3 +128,40 @@ def render():
             xaxis=dict(scaleanchor='y', scaleratio=1),
         )
         st.plotly_chart(fig, width='stretch')
+
+    # ── Post-plot explanation ────────────────────────────────
+    st.markdown("---")
+    st.subheader("Things to Try")
+    st.markdown("""
+    1. **Single positive charge** — field lines radiate outward uniformly in all
+       directions, weakening with distance ($1/r^2$).
+    2. **Dipole** (one positive, one negative) — field lines arc from the
+       positive charge to the negative charge. This is the most common
+       configuration in nature (molecules, antennas, magnetic analogs).
+    3. **Two positive charges** — field lines repel between the charges, creating
+       a "dead zone" (saddle point) at the midpoint where $\\vec{E} = 0$.
+    4. **Vary charge magnitudes** — make one charge much larger than the other
+       to see how the field becomes dominated by the stronger source.
+    5. **Change separation** — bring charges closer together to see the field
+       intensify between them.
+    """)
+
+    st.subheader("Where Electric Fields Appear")
+    st.markdown("""
+    - **Capacitors**: Two parallel plates with opposite charges create a nearly
+      uniform field between them — the basis of energy storage.
+    - **Lightning**: Charge separation in clouds creates enormous fields
+      ($\\sim 3 \\times 10^6$ V/m) that ionize air, causing dielectric breakdown.
+    - **Biological systems**: The electric field across a cell membrane
+      ($\\sim 10^7$ V/m over ~10 nm) drives nerve impulses and ion transport.
+    - **Particle accelerators**: Carefully shaped electric fields accelerate
+      charged particles to near light speed.
+    """)
+
+    st.info("""
+    **Limitations of the visualization** — The quiver plot shows
+    *normalized* arrows (all the same length) to keep the diagram readable.
+    In reality, the field strength varies enormously — it's extremely strong
+    near the charges and drops off as $1/r^2$. Also, this is a 2-D cross-section
+    of what is really a 3-D field.
+    """)

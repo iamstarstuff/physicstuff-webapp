@@ -16,13 +16,49 @@ TAGS = ["mechanics", "kinematics"]
 def render():
     st.title(f"{ICON} {TITLE}")
 
+    # ── Introduction ─────────────────────────────────────────
     st.markdown("""
-    Projectile motion is the motion of an object thrown or projected into the air,
-    subject only to acceleration due to gravity. The trajectory follows a parabolic path
-    described by:
+    Projectile motion is one of the first problems you encounter in classical
+    mechanics — and one of the most elegant. An object is launched into the air
+    with some initial speed $v_0$ at an angle $\\theta$ above the horizontal.
+    After that moment, the **only** force acting on it is gravity (we ignore air
+    resistance).
+
+    Because gravity acts **only downward**, the motion separates neatly into two
+    independent components:
+
+    | Component | Acceleration | Velocity | Position |
+    |-----------|-------------|----------|----------|
+    | **Horizontal (x)** | $0$ | $v_{0x} = v_0\\cos\\theta$ (constant) | $x = v_0 \\cos\\theta\\; t$ |
+    | **Vertical (y)** | $-g$ | $v_{0y} = v_0\\sin\\theta - g\\,t$ | $y = v_0 \\sin\\theta\\; t - \\tfrac{1}{2}g\\,t^2$ |
+
+    Combining these gives the **parabolic trajectory**:
     """)
 
     st.latex(r"x(t) = v_0 \cos\theta \; t \qquad y(t) = v_0 \sin\theta \; t - \tfrac{1}{2}g\,t^2")
+
+    st.markdown("""
+    #### Key Derived Quantities
+
+    From these equations we can derive three important results (assuming level
+    ground, $y_0 = 0$):
+
+    - **Time of flight:** $\\displaystyle T = \\frac{2\\,v_0 \\sin\\theta}{g}$
+    - **Maximum height:** $\\displaystyle H = \\frac{v_0^2 \\sin^2\\theta}{2g}$
+    - **Range:** $\\displaystyle R = \\frac{v_0^2 \\sin 2\\theta}{g}$
+
+    Notice that the range depends on $\\sin 2\\theta$, which is maximised when
+    $2\\theta = 90°$, i.e. $\\theta = 45°$. So for any given launch speed, a
+    **45° angle** gives the longest range (in the absence of air resistance).
+    """)
+
+    st.info(
+        "💡 **Symmetry insight:** Launch angles that add up to 90° "
+        "(e.g. 30° and 60°) give the **same range** but very different "
+        "trajectories. Try it below!"
+    )
+
+    st.markdown("---")
 
     col1, col2 = st.columns([1, 2])
 
@@ -101,3 +137,35 @@ def render():
             legend=dict(x=0.65, y=0.95),
         )
         st.plotly_chart(fig, width='stretch')
+
+    # ── Post-plot explanation ─────────────────────────────────
+    st.markdown("---")
+    st.markdown("""
+    #### 🔍 What to Observe
+
+    - **Angle vs Range:** Set velocity to 50 m/s. Sweep the angle from 10° to 80°.
+      Notice the range peaks at **45°**, and complementary angles (e.g. 30° & 60°)
+      give the same range but different peak heights.
+    - **Gravity's role:** Lower gravity (think Moon at ~1.62 m/s²) dramatically
+      increases both range and height. On Jupiter (~24.8 m/s²), the same throw
+      barely gets off the ground.
+    - **Speed matters quadratically:** Doubling $v_0$ quadruples the range
+      ($R \\propto v_0^2$). That's why a small increase in launch speed makes a
+      huge difference.
+
+    #### 🌍 Real-World Applications
+
+    - **Sports:** Every ball sport involves projectile motion — from football
+      goal-kicks to basketball free throws and cricket sixes.
+    - **Artillery & Rocketry:** Ballistic trajectories were the original
+      motivation for studying this problem (Galileo, 1638).
+    - **Space launches:** Orbital mechanics begins where projectile motion
+      meets the curvature of the Earth.
+
+    #### ⚠️ Limitations of This Model
+
+    This simulation assumes **no air resistance**. In reality, drag force
+    ($F_d = \\tfrac{1}{2} C_d \\rho A v^2$) slows the projectile, reduces the
+    range, and makes the trajectory **asymmetric** — the descending arc is
+    steeper than the ascending one.
+    """)

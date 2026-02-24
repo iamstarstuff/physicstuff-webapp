@@ -32,12 +32,41 @@ def render():
     st.title(f"{ICON} {TITLE}")
 
     st.markdown("""
-    The Lorenz attractor is a set of chaotic solutions to the Lorenz system,
-    demonstrating how small changes in initial conditions can lead to vastly
-    different outcomes — the famous **"butterfly effect"**.
+    The Lorenz attractor is one of the most iconic objects in the study of
+    **chaos theory**. It arises from a simplified model of atmospheric
+    convection proposed by meteorologist **Edward Lorenz** in 1963. Despite
+    being governed by just three *deterministic* equations, the system exhibits
+    wildly unpredictable behaviour — the famous **"butterfly effect"**.
+
+    #### The Lorenz System
+
+    The system consists of three coupled ordinary differential equations:
     """)
 
     st.latex(r"\dot{x} = \sigma(y - x) \qquad \dot{y} = x(\rho - z) - y \qquad \dot{z} = xy - \beta z")
+
+    st.markdown("""
+    | Parameter | Symbol | Physical Meaning |
+    |-----------|--------|------------------|
+    | **Prandtl number** | $\\sigma$ | Ratio of momentum diffusivity to thermal diffusivity |
+    | **Rayleigh number** | $\\rho$ | Driving force — temperature difference across the fluid layer |
+    | **Geometric factor** | $\\beta$ | Related to the aspect ratio of the convection cell |
+
+    #### What Makes It Chaotic?
+
+    - The system is **deterministic** — given exact initial conditions, the
+      future is completely determined.
+    - Yet it is **extremely sensitive to initial conditions**: two trajectories
+      starting almost identically will diverge exponentially over time.
+    - The trajectory never repeats exactly and never settles to a fixed point,
+      yet it stays confined to a **strange attractor** — that butterfly-shaped
+      region in 3D space.
+
+    > *"Does the flap of a butterfly's wings in Brazil set off a tornado in
+    > Texas?"* — Edward Lorenz, 1972
+    """)
+
+    st.markdown("---")
 
     col1, col2 = st.columns([1, 2])
 
@@ -71,3 +100,40 @@ def render():
             height=600,
         )
         st.plotly_chart(fig, width='stretch')
+
+    # ── Post-plot explanation ────────────────────────────────
+    st.markdown("---")
+    st.subheader("Things to Try")
+    st.markdown("""
+    1. **Classic chaos** — Set $\\sigma = 10$, $\\rho = 28$, $\\beta = 8/3$.
+       The trajectory should trace two lobes, switching unpredictably between
+       them.
+    2. **Edge of chaos** — Lower $\\rho$ toward **21**. The attractor collapses
+       into a stable periodic orbit.
+    3. **Increase $\\rho$ beyond 28** — Watch the attractor expand and the
+       switching pattern become even more irregular.
+    4. **Vary $\\sigma$** — A higher Prandtl number makes the trajectory
+       "stickier" on each lobe before switching.
+    """)
+
+    st.subheader("Why Does It Matter?")
+    st.markdown("""
+    - **Weather prediction**: Lorenz's discovery showed that long-range weather
+      forecasting has a fundamental limit — not because our models are bad, but
+      because the atmosphere is inherently chaotic.
+    - **Nature is full of chaos**: Turbulence in fluids, population dynamics,
+      the double pendulum and even cardiac rhythms can exhibit similar
+      behaviour.
+    - **Strange attractors & fractals**: The Lorenz attractor has a fractal
+      structure with a dimension of about **2.06**. It occupies zero volume in
+      3-D space, yet has an infinite surface area.
+    """)
+
+    st.info("""
+    **A note on the numerics** — This simulation uses the
+    **Euler method** (simplest first-order integrator) with a fixed time step
+    of 0.01. For chaotic systems, numerical errors grow exponentially, so
+    the *specific* trajectory you see will diverge from the "true" solution
+    after some time. However, the overall attractor shape and statistical
+    properties are faithfully reproduced.
+    """)

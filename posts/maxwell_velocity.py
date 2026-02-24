@@ -17,15 +17,46 @@ def render():
     st.title(f"{ICON} {TITLE}")
 
     st.markdown("""
-    The Maxwell-Boltzmann distribution describes the distribution of particle
-    speeds in an ideal gas at thermal equilibrium. It is fundamental to
-    statistical mechanics and kinetic theory.
+    The **Maxwell-Boltzmann distribution** describes the distribution of particle
+    speeds in an ideal gas at thermal equilibrium. Derived independently by
+    James Clerk Maxwell (1860) and Ludwig Boltzmann (1868), it is a cornerstone
+    of **statistical mechanics** and **kinetic theory**.
+
+    #### The Distribution Function
+
+    The probability that a molecule has a speed between $v$ and $v + dv$ is:
     """)
 
     st.latex(
         r"f(v) = 4\pi \left(\frac{m}{2\pi k_B T}\right)^{3/2}"
         r"\, v^2 \, \exp\!\left(-\frac{mv^2}{2k_B T}\right)"
     )
+
+    st.markdown("""
+    The shape of this curve comes from two competing effects:
+
+    | Factor | Expression | Meaning |
+    |--------|-----------|---------|
+    | **Phase-space factor** | $v^2$ | More ways to arrange a velocity vector at higher speeds (surface area of a sphere in velocity space) |
+    | **Boltzmann factor** | $e^{-mv^2/2k_BT}$ | Exponential penalty for high kinetic energy |
+
+    The peak arises where these two factors balance.
+
+    #### Three Characteristic Speeds
+
+    - **Most probable speed** $v_p = \\sqrt{2k_BT/m}$ — the peak of the
+      distribution
+    - **Mean speed** $\\langle v \\rangle = \\sqrt{8k_BT/\\pi m}$ — the
+      arithmetic average, always slightly above $v_p$
+    - **RMS speed** $v_{\\text{rms}} = \\sqrt{3k_BT/m}$ — root-mean-square
+      speed, related to the average kinetic energy via
+      $\\langle E_k \\rangle = \\tfrac{1}{2}m v_{\\text{rms}}^2 = \\tfrac{3}{2}k_BT$
+
+    They always satisfy $v_p < \\langle v \\rangle < v_{\\text{rms}}$ regardless
+    of gas or temperature.
+    """)
+
+    st.markdown("---")
 
     col1, col2 = st.columns([1, 2])
 
@@ -109,3 +140,42 @@ def render():
             legend=dict(x=0.65, y=0.95),
         )
         st.plotly_chart(fig, width='stretch')
+
+    # ── Post-plot explanation ────────────────────────────────
+    st.markdown("---")
+    st.subheader("Things to Try")
+    st.markdown("""
+    1. **Increase temperature** from 100 K to 1000 K — watch the peak flatten
+       and shift right. Higher temperature means molecules are faster on average,
+       but the distribution also broadens.
+    2. **Switch between gases** at the same temperature — lighter molecules
+       (H$_2$, He) move much faster than heavier ones (N$_2$, O$_2$).
+    3. **Compare the three speed lines** — notice they always appear in the
+       same order: $v_p$ (green) < $\\langle v \\rangle$ (cyan) < $v_{\\text{rms}}$ (yellow).
+    4. **Ghost reference** — the faint dotted curve always shows the same gas
+       at **300 K**, making it easy to see how your settings differ from room
+       temperature.
+    """)
+
+    st.subheader("Real-World Applications")
+    st.markdown("""
+    - **Atmospheric escape**: On small, warm bodies (like the Moon), the tail
+      of the speed distribution for light gases exceeds escape velocity, which
+      is why the Moon has essentially no atmosphere.
+    - **Thermal neutrons**: Nuclear reactors moderate fast neutrons to thermal
+      energies; the resulting speed distribution is Maxwell-Boltzmann at the
+      moderator temperature.
+    - **Chemistry**: Reaction rates depend on the fraction of molecules with
+      kinetic energy above the activation energy — the high-speed tail of this
+      distribution (Arrhenius equation).
+    - **Stellar atmospheres**: Spectral line broadening due to thermal Doppler
+      shifts follows a Gaussian derived from this distribution.
+    """)
+
+    st.info("""
+    **Assumptions of the model** — The Maxwell-Boltzmann distribution assumes
+    an *ideal* gas: no intermolecular forces, elastic collisions only, and
+    thermal equilibrium. For very dense gases, low temperatures, or quantum
+    particles, one must use the **Fermi-Dirac** (fermions) or **Bose-Einstein**
+    (bosons) distributions instead.
+    """)
