@@ -27,6 +27,7 @@ def get_all_posts():
             # Validate the module has required attributes
             required = ["TITLE", "ICON", "DATE", "DESCRIPTION", "TAGS", "render"]
             if all(hasattr(module, attr) for attr in required):
+                module.SLUG = module_name  # e.g. "lorenz_attractor"
                 posts[module.TITLE] = module
         except Exception as e:
             print(f"Warning: Could not load post module '{module_name}': {e}")
@@ -45,3 +46,10 @@ def get_subjects(posts=None):
         subject = mod.TAGS[0].title() if mod.TAGS else "Other"
         subjects.setdefault(subject, []).append(mod)
     return dict(sorted(subjects.items()))
+
+
+def get_posts_by_slug(posts=None):
+    """Return a dict mapping slug → module for URL-based lookup."""
+    if posts is None:
+        posts = get_all_posts()
+    return {mod.SLUG: mod for mod in posts.values()}

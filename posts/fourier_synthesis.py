@@ -58,80 +58,84 @@ def render():
 
     st.markdown("---")
 
-    col1, col2 = st.columns([1, 2])
+    @st.fragment
+    def _interactive():
+        col1, col2 = st.columns([1, 2])
 
-    with col1:
-        st.subheader("Wave Type")
-        wave_type   = st.selectbox("Target Wave",
-                                   ["Square Wave", "Sawtooth Wave", "Triangle Wave"])
-        n_harmonics = st.slider("Number of Harmonics", 1, 30, 5)
+        with col1:
+            st.subheader("Wave Type")
+            wave_type   = st.selectbox("Target Wave",
+                                       ["Square Wave", "Sawtooth Wave", "Triangle Wave"])
+            n_harmonics = st.slider("Number of Harmonics", 1, 30, 5)
 
-        st.info(f"Using **{n_harmonics}** harmonics.\nMore harmonics → better approximation.")
+            st.info(f"Using **{n_harmonics}** harmonics.\nMore harmonics → better approximation.")
 
-    with col2:
-        t = np.linspace(0, 2 * np.pi, 1000)
-        y = np.zeros_like(t)
+        with col2:
+            t = np.linspace(0, 2 * np.pi, 1000)
+            y = np.zeros_like(t)
 
-        for n in range(1, n_harmonics + 1):
-            if wave_type == "Square Wave":
-                if n % 2 == 1:
-                    y += (4 / np.pi) * np.sin(n * t) / n
-            elif wave_type == "Sawtooth Wave":
-                y += (2 / np.pi) * np.sin(n * t) * (-1) ** (n + 1) / n
-            elif wave_type == "Triangle Wave":
-                if n % 2 == 1:
-                    y += (8 / np.pi ** 2) * np.sin(n * t) * (-1) ** ((n - 1) / 2) / n ** 2
+            for n in range(1, n_harmonics + 1):
+                if wave_type == "Square Wave":
+                    if n % 2 == 1:
+                        y += (4 / np.pi) * np.sin(n * t) / n
+                elif wave_type == "Sawtooth Wave":
+                    y += (2 / np.pi) * np.sin(n * t) * (-1) ** (n + 1) / n
+                elif wave_type == "Triangle Wave":
+                    if n % 2 == 1:
+                        y += (8 / np.pi ** 2) * np.sin(n * t) * (-1) ** ((n - 1) / 2) / n ** 2
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=t, y=y,
-            mode='lines',
-            line=dict(color='#3a75c4', width=3),
-        ))
-        fig.update_layout(
-            title=f"Fourier Synthesis: {wave_type}",
-            xaxis_title="Time (radians)",
-            yaxis_title="Amplitude",
-            template="plotly_dark",
-            height=500,
-            showlegend=False,
-        )
-        st.plotly_chart(fig, width='stretch')
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=t, y=y,
+                mode='lines',
+                line=dict(color='#3a75c4', width=3),
+            ))
+            fig.update_layout(
+                title=f"Fourier Synthesis: {wave_type}",
+                xaxis_title="Time (radians)",
+                yaxis_title="Amplitude",
+                template="plotly_dark",
+                height=500,
+                showlegend=False,
+            )
+            st.plotly_chart(fig, width='stretch')
 
-    # ── Post-plot explanation ────────────────────────────────
-    st.markdown("---")
-    st.subheader("Things to Try")
-    st.markdown("""
-    1. **Square wave with 1 harmonic** — you see a single sine wave. Add more
-       harmonics and watch the waveform sharpen into a square shape.
-    2. **Square wave with 30 harmonics** — zoom in on the discontinuity to see
-       the **Gibbs overshoot** (~9% ripple that never goes away).
-    3. **Triangle wave** — notice how quickly it converges even with just 3-5
-       harmonics, because its coefficients decay as $1/n^2$.
-    4. **Sawtooth wave** — uses *all* harmonics (both even and odd), so it
-       converges differently from the square and triangle waves.
-    5. **Compare all three** at the same number of harmonics to appreciate how
-       smoothness of the target function affects convergence speed.
-    """)
+        # ── Post-plot explanation ────────────────────────────────
+        st.markdown("---")
+        st.subheader("Things to Try")
+        st.markdown("""
+        1. **Square wave with 1 harmonic** — you see a single sine wave. Add more
+           harmonics and watch the waveform sharpen into a square shape.
+        2. **Square wave with 30 harmonics** — zoom in on the discontinuity to see
+           the **Gibbs overshoot** (~9% ripple that never goes away).
+        3. **Triangle wave** — notice how quickly it converges even with just 3-5
+           harmonics, because its coefficients decay as $1/n^2$.
+        4. **Sawtooth wave** — uses *all* harmonics (both even and odd), so it
+           converges differently from the square and triangle waves.
+        5. **Compare all three** at the same number of harmonics to appreciate how
+           smoothness of the target function affects convergence speed.
+        """)
 
-    st.subheader("Where Fourier Analysis Appears")
-    st.markdown("""
-    - **Audio & music**: Every musical instrument produces a unique mix of
-      harmonics (timbre). The equalizer on your stereo adjusts individual
-      Fourier components.
-    - **Image compression** (JPEG): Images are decomposed into 2-D cosine
-      components; discarding high-frequency ones compresses the file.
-    - **Signal processing**: Filtering noise, designing antennas, and
-      analysing seismic data all rely on Fourier transforms.
-    - **Quantum mechanics**: The wave function in momentum space is the Fourier
-      transform of the wave function in position space.
-    - **Heat conduction**: Fourier originally developed his series to solve
-      the heat equation — each harmonic decays at a rate proportional to $n^2$.
-    """)
+        st.subheader("Where Fourier Analysis Appears")
+        st.markdown("""
+        - **Audio & music**: Every musical instrument produces a unique mix of
+          harmonics (timbre). The equalizer on your stereo adjusts individual
+          Fourier components.
+        - **Image compression** (JPEG): Images are decomposed into 2-D cosine
+          components; discarding high-frequency ones compresses the file.
+        - **Signal processing**: Filtering noise, designing antennas, and
+          analysing seismic data all rely on Fourier transforms.
+        - **Quantum mechanics**: The wave function in momentum space is the Fourier
+          transform of the wave function in position space.
+        - **Heat conduction**: Fourier originally developed his series to solve
+          the heat equation — each harmonic decays at a rate proportional to $n^2$.
+        """)
 
-    st.info("""
-    **From series to transform** — The Fourier *series* works for periodic
-    functions. For non-periodic signals, we generalize to the **Fourier
-    transform**, which decomposes a function into a *continuous* spectrum
-    of frequencies rather than discrete harmonics.
-    """)
+        st.info("""
+        **From series to transform** — The Fourier *series* works for periodic
+        functions. For non-periodic signals, we generalize to the **Fourier
+        transform**, which decomposes a function into a *continuous* spectrum
+        of frequencies rather than discrete harmonics.
+        """)
+
+    _interactive()

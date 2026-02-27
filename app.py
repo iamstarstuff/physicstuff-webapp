@@ -10,7 +10,7 @@ from pathlib import Path
 
 import streamlit as st
 from PIL import Image
-from posts import get_all_posts, get_subjects
+from posts import get_all_posts, get_subjects, get_posts_by_slug
 
 
 # ── Image helpers (inline base-64 so images work everywhere) ─
@@ -22,7 +22,7 @@ def _load_image_b64(path: str) -> str:
 
 _STATIC = Path(__file__).parent / "static"
 LOGO_B64 = _load_image_b64(_STATIC / "Logo.png")
-HEADER_B64 = _load_image_b64(_STATIC / "Header.png")
+HEADER_B64 = _load_image_b64(_STATIC / "Header.jpg")
 LOGO_IMG = Image.open(_STATIC / "Logo.png")  # PIL Image for favicon
 
 # ── Page Config ──────────────────────────────────────────────
@@ -43,31 +43,37 @@ st.markdown("""
     }
     .stPlotlyChart { background-color: transparent; }
     [data-testid="stSidebar"] { background-color: #1E1E1E; }
-    .post-card {
+    a.post-card-link {
+        display: block; text-decoration: none; color: inherit;
         padding: 1.2rem 1.5rem; border-radius: 0.75rem; margin: 0.75rem 0;
         background-color: rgba(58, 117, 196, 0.08);
         border-left: 4px solid #3a75c4;
         transition: background-color 0.2s;
+        cursor: pointer;
     }
-    .post-card:hover {
-        background-color: rgba(58, 117, 196, 0.15);
+    a.post-card-link:hover {
+        background-color: rgba(58, 117, 196, 0.18);
     }
-    .post-card h4 { margin-top: 0; }
+    a.post-card-link h4 { margin-top: 0; }
     .tag {
         display: inline-block; font-size: 0.75rem; padding: 2px 8px;
         border-radius: 12px; margin-right: 4px;
         background-color: rgba(58, 117, 196, 0.25);
     }
+    /* Sidebar nav buttons — compact list look */
+    [data-testid="stSidebar"] .stButton > button {
+        text-align: left;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+    }
 </style>
 """, unsafe_allow_html=True)
-
-# ── Session State ────────────────────────────────────────────
-if "current_post" not in st.session_state:
-    st.session_state.current_post = None
 
 # ── Discover & Group Posts ───────────────────────────────────
 posts = get_all_posts()           # dict  {title: module}  sorted newest-first
 subjects = get_subjects(posts)    # dict  {subject: [modules]}
+slugs = get_posts_by_slug(posts)  # dict  {slug: module}
 
 SUBJECT_ICONS = {
     "Chaos": "🦋",
@@ -79,6 +85,20 @@ SUBJECT_ICONS = {
     "Waves": "🌊",
 }
 
+# ── URL-based routing via query params ───────────────────────
+qp = st.query_params
+current_page = qp.get("page", "home")
+current_post_slug = qp.get("post", None)
+current_subject = qp.get("subject", None)
+
+
+def _nav_to(page, **extra):
+    """Set query params and rerun to navigate."""
+    st.query_params.clear()
+    st.query_params.update(page=page, **extra)
+    st.rerun()
+
+
 # ── Sidebar Navigation ──────────────────────────────────────
 st.sidebar.markdown(
     f'<div style="text-align:center;padding:0.5rem 0 0.25rem;">'
@@ -89,30 +109,33 @@ st.sidebar.markdown(
 )
 st.sidebar.markdown("---")
 
-# Build navigation options and a reverse-lookup map
-nav_items = ["🏠 Home"]
-nav_to_key = {"🏠 Home": ("home", None)}
+# Home
+is_home = current_page == "home" and not current_post_slug
+if st.sidebar.button(
+    "🏠 Home", use_container_width=True,
+    type="primary" if is_home else "secondary",
+):
+    st.query_params.clear()
+    st.rerun()
+
+st.sidebar.markdown("#### Categories")
 
 for subj in subjects:
     icon = SUBJECT_ICONS.get(subj, "📁")
-    label = f"{icon} {subj}"
-    nav_items.append(label)
-    nav_to_key[label] = ("subject", subj)
+    is_active = current_page == "subject" and current_subject == subj
+    if st.sidebar.button(
+        f"{icon} {subj}", use_container_width=True,
+        type="primary" if is_active else "secondary",
+    ):
+        _nav_to("subject", subject=subj)
 
-nav_items.append("ℹ️ About")
-nav_to_key["ℹ️ About"] = ("about", None)
+st.sidebar.markdown("---")
 
-
-def _on_nav_change():
-    """Clear the active post whenever the user picks a different page."""
-    st.session_state.current_post = None
-
-
-choice = st.sidebar.selectbox(
-    "Navigate to:", nav_items,
-    key="nav_select",
-    on_change=_on_nav_change,
-)
+if st.sidebar.button(
+    "ℹ️ About", use_container_width=True,
+    type="primary" if current_page == "about" else "secondary",
+):
+    _nav_to("about")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("Built with ❤️ using Streamlit")
@@ -120,44 +143,42 @@ st.sidebar.markdown("© 2026 PhysicStuff")
 
 
 # ── Helpers ──────────────────────────────────────────────────
-def _render_card(mod, key_suffix=""):
-    """Render a single-column post card with an *Open* button."""
+def _render_card(mod, key_suffix="", from_subject=None):
+    """Render a clickable post card that navigates via query-param URL."""
     tags_html = "".join(f'<span class="tag">{t}</span>' for t in mod.TAGS)
+    href = f"?page=post&post={mod.SLUG}"
+    if from_subject:
+        href += f"&subject={from_subject}"
     st.markdown(f"""
-    <div class="post-card">
+    <a class="post-card-link" href="{href}" target="_self">
         <h4>{mod.ICON} {mod.TITLE}</h4>
         <p style="margin:4px 0; color:#aaa; font-size:0.85rem;">{mod.DATE}</p>
         <p>{mod.DESCRIPTION}</p>
         {tags_html}
-    </div>
+    </a>
     """, unsafe_allow_html=True)
-    if st.button(
-        f"Open {mod.ICON} {mod.TITLE}",
-        key=f"open_{mod.TITLE}{key_suffix}",
-        use_container_width=True,
-    ):
-        st.session_state.current_post = mod.TITLE
-        st.rerun()
 
 
 # ── Routing ──────────────────────────────────────────────────
-page_type, page_value = nav_to_key.get(choice, ("home", None))
-
 
 # ─ Individual Post View ──────────────────────────────────────
-if st.session_state.current_post and st.session_state.current_post in posts:
+if current_page == "post" and current_post_slug and current_post_slug in slugs:
     if st.button("← Back"):
-        st.session_state.current_post = None
-        st.rerun()
-    posts[st.session_state.current_post].render()
+        # Navigate back to subject if we know it, else home
+        if current_subject and current_subject in subjects:
+            _nav_to("subject", subject=current_subject)
+        else:
+            st.query_params.clear()
+            st.rerun()
+    slugs[current_post_slug].render()
 
 
 # ─ Home Page ─────────────────────────────────────────────────
-elif page_type == "home":
+elif current_page == "home":
     # Full-width header banner
     st.markdown(
         f'<div style="text-align:center;margin-bottom:1.5rem;">'
-        f'<img src="data:image/png;base64,{HEADER_B64}" '
+        f'<img src="data:image/jpeg;base64,{HEADER_B64}" '
         f'style="width:100%;max-width:900px;border-radius:12px;" />'
         f'</div>',
         unsafe_allow_html=True,
@@ -165,7 +186,7 @@ elif page_type == "home":
     st.markdown("### Interactive Physics Simulations & Visualizations")
     st.markdown(
         "Adjust parameters, see real-time updates, and build intuition "
-        "about physical phenomena.  **Pick a subject from the sidebar** "
+        "about physical phenomena.  **Pick a category from the sidebar** "
         "or browse the posts below."
     )
     st.markdown("---")
@@ -179,10 +200,10 @@ elif page_type == "home":
 
 
 # ─ About Page ────────────────────────────────────────────────
-elif page_type == "about":
+elif current_page == "about":
     st.markdown(
         f'<div style="text-align:center;margin-bottom:1rem;">'
-        f'<img src="data:image/png;base64,{HEADER_B64}" '
+        f'<img src="data:image/jpeg;base64,{HEADER_B64}" '
         f'style="width:100%;max-width:900px;border-radius:12px;" />'
         f'</div>',
         unsafe_allow_html=True,
@@ -271,10 +292,18 @@ elif page_type == "about":
 
 
 # ─ Subject Page ──────────────────────────────────────────────
-elif page_type == "subject" and page_value in subjects:
-    icon = SUBJECT_ICONS.get(page_value, "📁")
-    st.title(f"{icon} {page_value}")
-    st.markdown(f"Explore all posts in **{page_value}**")
+elif current_page == "subject" and current_subject in subjects:
+    icon = SUBJECT_ICONS.get(current_subject, "📁")
+    st.title(f"{icon} {current_subject}")
+    st.markdown(f"Explore all posts in **{current_subject}**")
     st.markdown("---")
-    for mod in subjects[page_value]:
-        _render_card(mod)
+    for mod in subjects[current_subject]:
+        _render_card(mod, from_subject=current_subject)
+
+
+# ─ 404 fallback ──────────────────────────────────────────────
+else:
+    st.warning("Page not found — use the sidebar to navigate.")
+    if st.button("Go Home"):
+        st.query_params.clear()
+        st.rerun()

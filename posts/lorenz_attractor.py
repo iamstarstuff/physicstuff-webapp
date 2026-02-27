@@ -68,72 +68,79 @@ def render():
 
     st.markdown("---")
 
-    col1, col2 = st.columns([1, 2])
+    @st.fragment
+    def _interactive():
+        col1, col2 = st.columns([1, 2])
 
-    with col1:
-        st.subheader("Parameters")
-        sigma = st.slider("σ (Prandtl number)", 5.0, 15.0, 10.0, 0.1)
-        rho   = st.slider("ρ (Rayleigh number)", 20.0, 35.0, 28.0, 0.1)
-        beta  = st.slider("β", 1.0, 5.0, 8 / 3, 0.05)
+        with col1:
+            st.subheader("Parameters")
+            sigma = st.slider("σ (Prandtl number)", 5.0, 15.0, 10.0, 0.1)
+            rho   = st.slider("ρ (Rayleigh number)", 20.0, 35.0, 28.0, 0.1)
+            beta  = st.slider("β", 1.0, 5.0, 8 / 3, 0.05)
 
+            st.markdown("""
+            **Try these:**
+            - Classic: σ=10, ρ=28, β=2.67
+            - Periodic: σ=10, ρ=21, β=2.67
+            """)
+
+        with col2:
+            xs, ys, zs = _integrate_lorenz(sigma, rho, beta)
+
+            fig = go.Figure(data=[go.Scatter3d(
+                x=xs, y=ys, z=zs,
+                mode='lines',
+                line=dict(color=np.arange(len(xs)), colorscale='Viridis', width=2),
+            )])
+            fig.update_layout(
+                title="Lorenz Attractor 3D",
+                scene=dict(
+                    xaxis_title='X', yaxis_title='Y', zaxis_title='Z',
+                    bgcolor='rgba(0,0,0,0)',
+                    camera=dict(
+                        eye=dict(x=0, y=-1.5, z=0.05),
+                        up=dict(x=2.5, y=0, z=1),
+                    ),
+                ),                uirevision="lorenz",                template="plotly_dark",
+                height=600,
+            )
+            st.plotly_chart(fig, width='stretch')
+
+        # ── Post-plot explanation ────────────────────────────────
+        st.markdown("---")
+        st.subheader("Things to Try")
         st.markdown("""
-        **Try these:**
-        - Classic: σ=10, ρ=28, β=2.67
-        - Periodic: σ=10, ρ=21, β=2.67
+        1. **Classic chaos** — Set $\\sigma = 10$, $\\rho = 28$, $\\beta = 8/3$.
+           The trajectory should trace two lobes, switching unpredictably between
+           them.
+        2. **Edge of chaos** — Lower $\\rho$ toward **21**. The attractor collapses
+           into a stable periodic orbit.
+        3. **Increase $\\rho$ beyond 28** — Watch the attractor expand and the
+           switching pattern become even more irregular.
+        4. **Vary $\\sigma$** — A higher Prandtl number makes the trajectory
+           "stickier" on each lobe before switching.
         """)
 
-    with col2:
-        xs, ys, zs = _integrate_lorenz(sigma, rho, beta)
+        st.subheader("Why Does It Matter?")
+        st.markdown("""
+        - **Weather prediction**: Lorenz's discovery showed that long-range weather
+          forecasting has a fundamental limit — not because our models are bad, but
+          because the atmosphere is inherently chaotic.
+        - **Nature is full of chaos**: Turbulence in fluids, population dynamics,
+          the double pendulum and even cardiac rhythms can exhibit similar
+          behaviour.
+        - **Strange attractors & fractals**: The Lorenz attractor has a fractal
+          structure with a dimension of about **2.06**. It occupies zero volume in
+          3-D space, yet has an infinite surface area.
+        """)
 
-        fig = go.Figure(data=[go.Scatter3d(
-            x=xs, y=ys, z=zs,
-            mode='lines',
-            line=dict(color=np.arange(len(xs)), colorscale='Viridis', width=2),
-        )])
-        fig.update_layout(
-            title="Lorenz Attractor 3D",
-            scene=dict(
-                xaxis_title='X', yaxis_title='Y', zaxis_title='Z',
-                bgcolor='rgba(0,0,0,0)',
-            ),
-            template="plotly_dark",
-            height=600,
-        )
-        st.plotly_chart(fig, width='stretch')
+        st.info("""
+        **A note on the numerics** — This simulation uses the
+        **Euler method** (simplest first-order integrator) with a fixed time step
+        of 0.01. For chaotic systems, numerical errors grow exponentially, so
+        the *specific* trajectory you see will diverge from the "true" solution
+        after some time. However, the overall attractor shape and statistical
+        properties are faithfully reproduced.
+        """)
 
-    # ── Post-plot explanation ────────────────────────────────
-    st.markdown("---")
-    st.subheader("Things to Try")
-    st.markdown("""
-    1. **Classic chaos** — Set $\\sigma = 10$, $\\rho = 28$, $\\beta = 8/3$.
-       The trajectory should trace two lobes, switching unpredictably between
-       them.
-    2. **Edge of chaos** — Lower $\\rho$ toward **21**. The attractor collapses
-       into a stable periodic orbit.
-    3. **Increase $\\rho$ beyond 28** — Watch the attractor expand and the
-       switching pattern become even more irregular.
-    4. **Vary $\\sigma$** — A higher Prandtl number makes the trajectory
-       "stickier" on each lobe before switching.
-    """)
-
-    st.subheader("Why Does It Matter?")
-    st.markdown("""
-    - **Weather prediction**: Lorenz's discovery showed that long-range weather
-      forecasting has a fundamental limit — not because our models are bad, but
-      because the atmosphere is inherently chaotic.
-    - **Nature is full of chaos**: Turbulence in fluids, population dynamics,
-      the double pendulum and even cardiac rhythms can exhibit similar
-      behaviour.
-    - **Strange attractors & fractals**: The Lorenz attractor has a fractal
-      structure with a dimension of about **2.06**. It occupies zero volume in
-      3-D space, yet has an infinite surface area.
-    """)
-
-    st.info("""
-    **A note on the numerics** — This simulation uses the
-    **Euler method** (simplest first-order integrator) with a fixed time step
-    of 0.01. For chaotic systems, numerical errors grow exponentially, so
-    the *specific* trajectory you see will diverge from the "true" solution
-    after some time. However, the overall attractor shape and statistical
-    properties are faithfully reproduced.
-    """)
+    _interactive()
