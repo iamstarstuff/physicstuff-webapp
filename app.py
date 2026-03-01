@@ -30,7 +30,7 @@ st.set_page_config(
     page_title="PhysicStuff — Interactive Physics Blog",
     page_icon=LOGO_IMG,
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # ── Global CSS (mobile-friendly + dark theme) ────────────────
