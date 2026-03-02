@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Projectile Motion"
 ICON = "🎯"
 DATE = "2026-01-15"
 DESCRIPTION = "Explore parabolic trajectories with customizable velocity, angle, and gravity."
-TAGS = ["mechanics", "kinematics"]
+TAGS = ["mechanics", "kinematics", "projectile motion"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -62,6 +63,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

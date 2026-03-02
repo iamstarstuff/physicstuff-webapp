@@ -27,13 +27,14 @@ TIPS:
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "My New Post Title"
 ICON = "🔬"                          # emoji shown in sidebar & cards
 DATE = "2026-02-24"                  # YYYY-MM-DD (used for sorting)
 DESCRIPTION = "A short one-liner describing this post."
-TAGS = ["physics", "simulation"]     # used for filtering on home page
+TAGS = ["mechanics", "kinematics"]     # first tag = category (use: mechanics, electromagnetism, quantum mechanics, statistical mechanics, thermodynamics, waves & oscillations, mathematics & statistics)
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -50,36 +51,43 @@ def render():
     
     st.latex(r"F = ma")
     
-    # ── Interactive Controls + Plot ──────────────────────────
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        st.subheader("Parameters")
-        param_a = st.slider("Parameter A", 1, 100, 50)
-        param_b = st.slider("Parameter B", 0.1, 10.0, 1.0, 0.1)
-    
-    with col2:
-        # Generate data
-        x = np.linspace(0, 10, 500)
-        y = param_a * np.sin(param_b * x)
-        
-        # Create Plotly figure
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=x, y=y,
-            mode='lines',
-            line=dict(color='#3a75c4', width=3),
-        ))
-        fig.update_layout(
-            title="My Plot",
-            xaxis_title="X",
-            yaxis_title="Y",
-            template="plotly_dark",
-            height=500,
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # ── More text / equations / plots below ──────────────────
     st.markdown("---")
-    st.markdown("### Further Reading")
-    st.markdown("Add references, links, etc.")
+
+    # ── Interactive section (wrapped in @st.fragment for fast updates) ──
+    @st.fragment
+    def _interactive():
+        check_rate_limit()
+        col1, col2 = st.columns([1, 2])
+    
+        with col1:
+            st.subheader("Parameters")
+            param_a = st.slider("Parameter A", 1, 100, 50)
+            param_b = st.slider("Parameter B", 0.1, 10.0, 1.0, 0.1)
+    
+        with col2:
+            # Generate data
+            x = np.linspace(0, 10, 500)
+            y = param_a * np.sin(param_b * x)
+        
+            # Create Plotly figure
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=x, y=y,
+                mode='lines',
+                line=dict(color='#3a75c4', width=3),
+            ))
+            fig.update_layout(
+                title="My Plot",
+                xaxis_title="X",
+                yaxis_title="Y",
+                template="plotly_dark",
+                height=500,
+            )
+            st.plotly_chart(fig, width='stretch')
+    
+        # ── More text / equations / plots below ──────────────────
+        st.markdown("---")
+        st.markdown("### Further Reading")
+        st.markdown("Add references, links, etc.")
+
+    _interactive()

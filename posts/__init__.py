@@ -45,6 +45,9 @@ def get_subjects(posts=None):
     for title, mod in posts.items():
         subject = mod.TAGS[0].title() if mod.TAGS else "Other"
         subjects.setdefault(subject, []).append(mod)
+    # Sort posts within each subject by date (newest first)
+    for subj in subjects:
+        subjects[subj].sort(key=lambda m: m.DATE, reverse=True)
     return dict(sorted(subjects.items()))
 
 

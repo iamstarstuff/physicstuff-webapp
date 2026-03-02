@@ -4,13 +4,14 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Electric Field"
 ICON = "⚡"
 DATE = "2026-02-15"
 DESCRIPTION = "Visualize electric field lines for various charge configurations."
-TAGS = ["electromagnetism", "fields", "charges"]
+TAGS = ["electromagnetism", "electric fields", "coulomb's law"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -62,6 +63,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

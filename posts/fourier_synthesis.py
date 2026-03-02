@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Fourier Synthesis"
 ICON = "🎵"
 DATE = "2026-02-20"
 DESCRIPTION = "See how complex waveforms emerge from simple sinusoidal harmonics."
-TAGS = ["waves", "signal processing", "fourier"]
+TAGS = ["waves & oscillations", "signal processing", "fourier analysis"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -60,6 +61,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

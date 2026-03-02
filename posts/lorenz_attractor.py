@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Lorenz Attractor"
 ICON = "🦋"
 DATE = "2026-02-01"
 DESCRIPTION = "Experience the butterfly effect through an interactive 3-D chaotic system."
-TAGS = ["chaos", "dynamics", "attractor"]
+TAGS = ["mechanics", "nonlinear dynamics", "chaos theory"]
 
 
 # ── Cached computation (10 k-step Euler loop) ───────────────
@@ -70,6 +71,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

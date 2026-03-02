@@ -76,13 +76,13 @@ subjects = get_subjects(posts)    # dict  {subject: [modules]}
 slugs = get_posts_by_slug(posts)  # dict  {slug: module}
 
 SUBJECT_ICONS = {
-    "Chaos": "🦋",
     "Electromagnetism": "⚡",
+    "Mathematics & Statistics": "📊",
     "Mechanics": "📐",
     "Quantum Mechanics": "⚛️",
     "Statistical Mechanics": "🌡️",
-    "Statistics": "📊",
-    "Waves": "🌊",
+    "Thermodynamics": "🔥",
+    "Waves & Oscillations": "🌊",
 }
 
 # ── URL-based routing via query params ───────────────────────

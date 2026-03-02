@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Wave Packets"
 ICON = "🌊"
 DATE = "2026-02-10"
 DESCRIPTION = "Visualize Gaussian wave packets and the uncertainty principle."
-TAGS = ["quantum mechanics", "waves", "uncertainty"]
+TAGS = ["quantum mechanics", "wave-particle duality", "uncertainty principle"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -57,6 +58,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

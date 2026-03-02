@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Lissajous Figures"
 ICON = "∞"
 DATE = "2026-01-20"
 DESCRIPTION = "Visualize the beautiful curves formed by two perpendicular oscillations."
-TAGS = ["waves", "oscillations", "harmonic motion"]
+TAGS = ["waves & oscillations", "harmonic motion", "parametric curves"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -56,6 +57,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

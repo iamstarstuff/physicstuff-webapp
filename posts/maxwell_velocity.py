@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Maxwell Velocity Distribution"
 ICON = "🌡️"
 DATE = "2026-02-05"
 DESCRIPTION = "Understand molecular speeds at different temperatures for various gases."
-TAGS = ["statistical mechanics", "thermodynamics", "kinetic theory"]
+TAGS = ["statistical mechanics", "kinetic theory", "thermodynamics"]
 
 
 # ── Render Function ──────────────────────────────────────────
@@ -60,6 +61,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col1, col2 = st.columns([1, 2])
 
         with col1:

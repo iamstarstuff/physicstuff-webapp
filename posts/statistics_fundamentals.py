@@ -3,13 +3,14 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from rate_limit import check_rate_limit
 
 # ── Post Metadata ────────────────────────────────────────────
 TITLE = "Statistics Fundamentals"
 ICON = "📊"
 DATE = "2026-02-24"
 DESCRIPTION = "Learn mean, median, mode, standard deviation, and confidence intervals — visually."
-TAGS = ["statistics", "data science", "probability"]
+TAGS = ["mathematics & statistics", "probability", "data science"]
 
 
 # ── Helpers ──────────────────────────────────────────────────
@@ -53,6 +54,7 @@ def render():
 
     @st.fragment
     def _interactive():
+        check_rate_limit()
         col_a, col_b = st.columns([1, 2])
 
         with col_a:
